@@ -19,24 +19,48 @@ window.onload = function() {
         ducks.push(firstDuck);
         positionDuck(firstDuck);
         
-        // Track mouse movement
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
-
-        // Add click listener to create ducks
+        // Track mouse/touch movement
+        document.addEventListener('mousemove', updateMousePosition);
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+        
+        // Add click/touch listeners to create ducks
         document.addEventListener('click', createDuckAtPosition);
+        document.addEventListener('touchend', handleTouchEnd, { passive: false });
         
         // Start duck chase
         setInterval(updateDucks, 20);
     }
 }
 
+function handleTouchMove(event) {
+    event.preventDefault(); // Prevent scrolling while moving
+    if (event.touches.length > 0) {
+        const touch = event.touches[0];
+        updateMousePosition(touch);
+    }
+}
+
+function handleTouchEnd(event) {
+    event.preventDefault();
+    if (event.changedTouches.length > 0) {
+        const touch = event.changedTouches[0];
+        createDuckAtPosition(touch);
+    }
+}
+
+function updateMousePosition(event) {
+    const x = event.clientX || event.pageX;
+    const y = event.clientY || event.pageY;
+    if (x !== undefined && y !== undefined) {
+        mouseX = x;
+        mouseY = y;
+    }
+}
+
 function positionDuck(duck, x, y) {
     if (x === undefined || y === undefined) {
-        x = Math.random() * (window.innerWidth - 50);
-        y = Math.random() * (window.innerHeight - 50);
+        x = Math.random() * (window.innerWidth - 40); // Account for smaller duck size
+        y = Math.random() * (window.innerHeight - 40);
     }
     duck.style.left = x + 'px';
     duck.style.top = y + 'px';
@@ -85,14 +109,21 @@ function chaseMouse(duck) {
 }
 
 function createDuckAtPosition(event) {
-    // Don't create duck if clicking on input or button elements
-    if (event.target.tagName.toLowerCase() === 'input' || 
-        event.target.tagName.toLowerCase() === 'button') {
+    // Don't create duck if clicking on interactive elements
+    const target = event.target || event.srcElement;
+    if (target.tagName.toLowerCase() === 'input' || 
+        target.tagName.toLowerCase() === 'button' ||
+        target.tagName.toLowerCase() === 'a') {
         return;
     }
 
-    const audio = new Audio('https://www.myinstants.com/media/sounds/quack.mp3');
-    audio.play();
+    // Play quack sound
+    try {
+        const audio = new Audio('https://www.myinstants.com/media/sounds/quack.mp3');
+        audio.play().catch(() => {}); // Ignore autoplay restrictions
+    } catch (e) {
+        // Ignore audio errors on mobile
+    }
 
     // Increase speed for all existing ducks
     currentSpeed = Math.min(currentSpeed * 1.5, 100);
@@ -106,13 +137,14 @@ function createDuckAtPosition(event) {
     newDuck.id = 'duck' + duckCounter;
     newDuck.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfdc0u_o9rTcpo572jdB5FZyu1u3VMPCUM2PQgr7oJaMs6_gb-ykrA1uv8HxRn9wZPtGM&usqp=CAU';
     newDuck.alt = 'A cute duck';
-    newDuck.onclick = createDuckAtPosition;
     newDuck.className = 'duck';
     newDuck.dataset.speed = currentSpeed;
     
-    // Position new duck at click position
+    // Position new duck at click/touch position
     newDuck.style.position = 'fixed';
-    positionDuck(newDuck, event.clientX - 25, event.clientY - 25); // Center duck on click
+    const x = event.clientX || event.pageX || (event.touches && event.touches[0].pageX);
+    const y = event.clientY || event.pageY || (event.touches && event.touches[0].pageY);
+    positionDuck(newDuck, x - 20, y - 20); // Center duck on touch (smaller size)
     
     // Add to document and duck array
     document.body.appendChild(newDuck);
