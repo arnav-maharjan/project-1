@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather - Hello World</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html">Home</a>
+        <a href="calc.html">Calculator</a>
+        <a href="weather.html" class="active">Weather</a>
+    </nav>
+    
+    <div class="container">
+        <h1>Weather</h1>
+        <div class="weather-widget">
+            <div class="search-box">
+                <input type="text" id="city-input" placeholder="Enter city name">
+                <button onclick="getWeather()">Get Weather</button>
+            </div>
+            <p id="loading-message" style="display: none;">Loading weather data...</p>
+            <div id="weather-result"></div>
+        </div>
+    </div>
+
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfdc0u_o9rTcpo572jdB5FZyu1u3VMPCUM2PQgr7oJaMs6_gb-ykrA1uv8HxRn9wZPtGM&usqp=CAU" 
+         id="duck" 
+         alt="A cute duck"
+         onclick="quack()">
+
+    <script src="script.js"></script>
+</body>
+</html>
